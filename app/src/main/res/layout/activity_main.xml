@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="GMaps Coordinate Extractor"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:paddingBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Paste Google Maps URL:"
+        android:textSize="14sp"
+        android:textColor="#000000"
+        android:paddingBottom="8dp" />
+
+    <EditText
+        android:id="@+id/inputUrl"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:gravity="top"
+        android:hint="https://www.google.com/maps/@..."
+        android:textSize="12sp"
+        android:padding="8dp"
+        android:background="#F0F0F0"
+        android:textColor="#000000" />
+
+    <Button
+        android:id="@+id/extractBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Extract Coordinates"
+        android:layout_marginTop="16dp"
+        android:textColor="#FFFFFF"
+        android:background="#4CAF50" />
+
+    <TextView
+        android:id="@+id/resultText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Paste Google Maps URL above"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:padding="16dp"
+        android:background="#F0F0F0"
+        android:layout_marginTop="16dp"
+        android:minHeight="80dp"
+        android:gravity="center" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/copyBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Copy"
+            android:textColor="#FFFFFF"
+            android:background="#2196F3"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/openOsmandBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Open in OsmAnd"
+            android:textColor="#FFFFFF"
+            android:background="#FF9800" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/clearBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear"
+        android:layout_marginTop="8dp"
+        android:textColor="#FFFFFF"
+        android:background="#F44336" />
+
+</LinearLayout>
