@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
         coordsDisplay = findViewById(R.id.coordsDisplay);
         openOsmandBtn = findViewById(R.id.openOsmandBtn);
         openOrganicBtn = findViewById(R.id.openOrganicBtn);
-        openMagicBtn = findViewById(R.id.openMagicBtn);   // ★ Added
+        openMagicBtn = findViewById(R.id.openMagicBtn);    // Magic Earth Button
         copyBtn = findViewById(R.id.copyBtn);
 
         setupWebView();
@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
 
         openOsmandBtn.setOnClickListener(v -> openInMap("net.osmand.plus", "OsmAnd"));
         openOrganicBtn.setOnClickListener(v -> openInMap("app.organicmaps", "Organic Maps"));
-        openMagicBtn.setOnClickListener(v -> openInMap("com.generalmagic.magicearth", "Magic Earth")); // ★ Added
+        openMagicBtn.setOnClickListener(v -> openInMap("com.generalmagic.magicearth", "Magic Earth"));
     }
 
     private void setupWebView() {
@@ -71,26 +71,27 @@ public class MainActivity extends Activity {
     }
 
     private void extractCoordinatesFromPage() {
-        String js = "javascript:(function() {" +
+
+        String js =
+                "javascript:(function() {" +
                 "  var url = window.location.href;" +
-                "  var match1 = url.match(/@(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)/);" +
-                "  if (match1) {" +
-                "    Android.setCoordinates(match1[1] + ',' + match1[2]);" +
-                "    return;" +
-                "  }" +
-                "  var match2 = url.match(/place\\/[^\\/]+\\/@(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)/);" +
-                "  if (match2) {" +
-                "    Android.setCoordinates(match2[1] + ',' + match2[2]);" +
-                "    return;" +
-                "  }" +
-                "  var match3 = url.match(/[?&]q=(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)/);" +
-                "  if (match3) {" +
-                "    Android.setCoordinates(match3[1] + ',' + match3[2]);" +
-                "  }" +
-                "})()";
+
+                // Pattern 1: @lat,lng
+                "  var m1 = url.match(/@(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)/);" +
+                "  if (m1) { Android.setCoordinates(m1[1] + ',' + m1[2]); return; }" +
+
+                // Pattern 2: /place/.../@lat,lng
+                "  var m2 = url.match(/place\\/[^\\/]+\\/@(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)/);" +
+                "  if (m2) { Android.setCoordinates(m2[1] + ',' + m2[2]); return; }" +
+
+                // Pattern 3: ?q=lat,lng
+                "  var m3 = url.match(/[?&]q=(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)/);" +
+                "  if (m3) { Android.setCoordinates(m3[1] + ',' + m3[2]); }" +
+                "})();";
 
         webView.evaluateJavascript(js, null);
 
+        // Re-check every 2 seconds
         webView.postDelayed(this::extractCoordinatesFromPage, 2000);
     }
 
@@ -116,11 +117,14 @@ public class MainActivity extends Activity {
                     Uri.parse("geo:" + coordinates + "?z=17"));
             intent.setPackage(packageName);
             startActivity(intent);
+
         } catch (Exception e) {
             try {
-                Intent geoIntent = new Intent(Intent.ACTION_VIEW,
+                // fallback to any map app
+                Intent intent = new Intent(Intent.ACTION_VIEW,
                         Uri.parse("geo:" + coordinates + "?z=17"));
-                startActivity(geoIntent);
+                startActivity(intent);
+
             } catch (Exception e2) {
                 Toast.makeText(this, appName + " not installed", Toast.LENGTH_SHORT).show();
             }
