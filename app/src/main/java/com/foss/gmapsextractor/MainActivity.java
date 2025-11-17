@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
     
     private WebView webView;
     private TextView coordsDisplay, methodDisplay;
-    private ImageButton openOsmandBtn, openOrganicBtn, openMagicBtn, copyBtn, refreshBtn;
+    private Button openOsmandBtn, openOrganicBtn, openMagicBtn, copyBtn, refreshBtn;
     private String coordinates = "";
     private String lastMethod = "Waiting...";
     private SharedPreferences prefs;

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """G2O Theme Asset Generator"""
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import os
 
 print("🎨 G2O Theme Asset Generator Starting...")
@@ -9,7 +9,17 @@ print("🎨 G2O Theme Asset Generator Starting...")
 for dpi in ["mdpi", "hdpi", "xhdpi", "xxhdpi"]:
     os.makedirs(f"app/src/main/res/drawable-{dpi}", exist_ok=True)
 
-def create_aero_button(width, height, color, name, dpi="xhdpi"):
+def get_font(size):
+    """Try to get a decent font"""
+    try:
+        return ImageFont.truetype("/usr/share/fonts/liberation/LiberationSans-Bold.ttf", size)
+    except:
+        try:
+            return ImageFont.truetype("/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf", size)
+        except:
+            return ImageFont.load_default()
+
+def create_aero_button(width, height, color, name, label, dpi="xhdpi"):
     """Windows 7 Aero glossy button"""
     img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
@@ -33,9 +43,22 @@ def create_aero_button(width, height, color, name, dpi="xhdpi"):
     draw.rounded_rectangle([(0, 0), (width-1, height-1)], radius=8, 
                           outline=(max(0,r-40), max(0,g-40), max(0,b-40), 255), width=2)
     
+    # Text with shadow
+    font = get_font(int(height * 0.35))
+    bbox = draw.textbbox((0, 0), label, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+    text_x = (width - text_width) // 2
+    text_y = (height - text_height) // 2 - 2
+    
+    # Shadow
+    draw.text((text_x+1, text_y+2), label, fill=(0, 0, 0, 100), font=font)
+    # Text
+    draw.text((text_x, text_y), label, fill=(255, 255, 255, 255), font=font)
+    
     img.save(f"app/src/main/res/drawable-{dpi}/aero_button_{name}.png")
 
-def create_skeu_button(width, height, color, name, dpi="xhdpi"):
+def create_skeu_button(width, height, color, name, label, dpi="xhdpi"):
     """iOS 6 skeumorphic button"""
     img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
@@ -62,9 +85,22 @@ def create_skeu_button(width, height, color, name, dpi="xhdpi"):
     draw.rounded_rectangle([(3, 3), (width-4, height-4)], radius=10,
                           outline=(max(0,r-80), max(0,g-80), max(0,b-80), 255), width=3)
     
+    # Text with deep shadow
+    font = get_font(int(height * 0.35))
+    bbox = draw.textbbox((0, 0), label, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+    text_x = (width - text_width) // 2
+    text_y = (height - text_height) // 2 - 2
+    
+    # Deep shadow
+    draw.text((text_x+1, text_y+3), label, fill=(0, 0, 0, 150), font=font)
+    # Text
+    draw.text((text_x, text_y), label, fill=(255, 255, 230, 255), font=font)
+    
     img.save(f"app/src/main/res/drawable-{dpi}/skeu_button_{name}.png")
 
-def create_material_button(width, height, color, name, dpi="xhdpi"):
+def create_material_button(width, height, color, name, label, dpi="xhdpi"):
     """Material Design flat button"""
     img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
@@ -80,6 +116,16 @@ def create_material_button(width, height, color, name, dpi="xhdpi"):
     
     # Flat color
     draw.rounded_rectangle([(0, 0), (width-1, height-3)], radius=4, fill=(r, g, b, 255))
+    
+    # Text
+    font = get_font(int(height * 0.4))
+    bbox = draw.textbbox((0, 0), label, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+    text_x = (width - text_width) // 2
+    text_y = (height - text_height) // 2 - 2
+    
+    draw.text((text_x, text_y), label, fill=(255, 255, 255, 255), font=font)
     
     img.save(f"app/src/main/res/drawable-{dpi}/material_button_{name}.png")
 
@@ -128,7 +174,14 @@ def create_refresh_icon(size, theme, dpi):
 # Generate for all DPIs
 dpis = {"mdpi": 0.75, "hdpi": 1.0, "xhdpi": 1.5, "xxhdpi": 2.0}
 
-colors = {"osmand": "#FF9800", "organic": "#9C27B0", "magic": "#3F51B5", "copy": "#2196F3"}
+# Updated with labels and browser button
+buttons = {
+    "copy": ("#2196F3", "Copy"),
+    "browser": ("#4CAF50", "Browser"),
+    "osmand": ("#FF9800", "OsmAnd"),
+    "organic": ("#9C27B0", "Organic"),
+    "magic": ("#3F51B5", "Magic")
+}
 
 for dpi_name, scale in dpis.items():
     print(f"📱 Generating {dpi_name} assets...")
@@ -137,10 +190,10 @@ for dpi_name, scale in dpis.items():
     hw, hh = int(800 * scale), int(200 * scale)
     icon = int(64 * scale)
     
-    for name, color in colors.items():
-        create_aero_button(bw, bh, color, name, dpi_name)
-        create_skeu_button(bw, bh, color, name, dpi_name)
-        create_material_button(bw, bh, color, name, dpi_name)
+    for name, (color, label) in buttons.items():
+        create_aero_button(bw, bh, color, name, label, dpi_name)
+        create_skeu_button(bw, bh, color, name, label, dpi_name)
+        create_material_button(bw, bh, color, name, label, dpi_name)
     
     create_headers(hw, hh, dpi_name)
     

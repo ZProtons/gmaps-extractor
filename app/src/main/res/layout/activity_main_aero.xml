@@ -5,7 +5,6 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/headerContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -29,16 +28,17 @@
                 android:shadowColor="#FFFFFF"
                 android:shadowDx="0"
                 android:shadowDy="1"
-                android:shadowRadius="2"
-                android:gravity="center_vertical" />
+                android:shadowRadius="2" />
 
-            <ImageButton
+            <Button
                 android:id="@+id/refreshBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/aero_refresh_icon"
-                android:contentDescription="Refresh"
-                android:scaleType="fitCenter" />
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="🔄"
+                android:textSize="16sp"
+                android:background="@drawable/aero_button_copy"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
         </LinearLayout>
 
         <TextView
@@ -55,8 +55,7 @@
             android:shadowColor="#FFFFFF"
             android:shadowDx="0"
             android:shadowDy="1"
-            android:shadowRadius="1"
-            android:visibility="visible" />
+            android:shadowRadius="1" />
 
         <TextView
             android:id="@+id/methodDisplay"
@@ -66,8 +65,7 @@
             android:textSize="11sp"
             android:textColor="#0055A0"
             android:gravity="center"
-            android:paddingTop="4dp"
-            android:visibility="visible" />
+            android:paddingTop="4dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -75,40 +73,44 @@
             android:orientation="horizontal"
             android:layout_marginTop="12dp">
 
-            <ImageButton
+            <Button
                 android:id="@+id/copyBtn"
                 android:layout_width="0dp"
                 android:layout_height="42dp"
                 android:layout_weight="1"
+                android:text="Copy"
+                android:textColor="#FFFFFF"
                 android:background="@drawable/aero_button_copy"
-                android:contentDescription="Copy"
                 android:layout_marginEnd="4dp" />
 
-            <ImageButton
+            <Button
                 android:id="@+id/openOsmandBtn"
                 android:layout_width="0dp"
                 android:layout_height="42dp"
                 android:layout_weight="1"
+                android:text="OsmAnd"
+                android:textColor="#FFFFFF"
                 android:background="@drawable/aero_button_osmand"
-                android:contentDescription="OsmAnd"
                 android:layout_marginEnd="4dp" />
 
-            <ImageButton
+            <Button
                 android:id="@+id/openOrganicBtn"
                 android:layout_width="0dp"
                 android:layout_height="42dp"
                 android:layout_weight="1"
+                android:text="Organic"
+                android:textColor="#FFFFFF"
                 android:background="@drawable/aero_button_organic"
-                android:contentDescription="Organic"
                 android:layout_marginEnd="4dp" />
 
-            <ImageButton
+            <Button
                 android:id="@+id/openMagicBtn"
                 android:layout_width="0dp"
                 android:layout_height="42dp"
                 android:layout_weight="1"
-                android:background="@drawable/aero_button_magic"
-                android:contentDescription="Magic" />
+                android:text="Magic"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/aero_button_magic" />
         </LinearLayout>
     </LinearLayout>
 
