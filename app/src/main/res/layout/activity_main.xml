@@ -2,21 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp"
-        android:background="#4CAF50">
+        android:padding="12dp"
+        android:background="?android:colorPrimary">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="G2O - Maps to OpenStreetMap"
-            android:textSize="16sp"
+            android:text="G2O Maps"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
             android:gravity="center"
@@ -27,11 +26,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="📍 Waiting for coordinates..."
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:textColor="#FFFFFF"
             android:gravity="center"
-            android:padding="8dp"
-            android:background="#388E3C"
+            android:padding="6dp"
+            android:background="?android:colorPrimaryDark"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/methodDisplay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Method: Waiting..."
+            android:textSize="10sp"
+            android:textColor="#CCFFFFFF"
+            android:gravity="center"
+            android:paddingTop="2dp"
             android:visibility="visible" />
 
         <LinearLayout
@@ -43,44 +53,43 @@
             <Button
                 android:id="@+id/copyBtn"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="38dp"
                 android:layout_weight="1"
                 android:text="Copy"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="#FFFFFF"
-                android:background="#2196F3"
-                android:layout_marginEnd="4dp" />
+                android:background="?android:colorAccent"
+                android:layout_marginEnd="3dp" />
 
             <Button
                 android:id="@+id/openOsmandBtn"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="38dp"
                 android:layout_weight="1"
                 android:text="OsmAnd"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="#FFFFFF"
                 android:background="#FF9800"
-                android:layout_marginEnd="4dp" />
+                android:layout_marginEnd="3dp" />
 
             <Button
                 android:id="@+id/openOrganicBtn"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="38dp"
                 android:layout_weight="1"
                 android:text="Organic"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="#FFFFFF"
                 android:background="#9C27B0"
-                android:layout_marginEnd="4dp" />
+                android:layout_marginEnd="3dp" />
 
-            <!-- ★ NEW BUTTON FOR MAGIC EARTH -->
             <Button
                 android:id="@+id/openMagicBtn"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="38dp"
                 android:layout_weight="1"
                 android:text="Magic"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="#FFFFFF"
                 android:background="#3F51B5" />
         </LinearLayout>
@@ -93,4 +102,3 @@
         android:layout_weight="1" />
 
 </LinearLayout>
-

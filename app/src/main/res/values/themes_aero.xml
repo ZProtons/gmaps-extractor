@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AeroTheme" parent="android:Theme.Material.Light">
+        <item name="android:colorPrimary">#E3F2FD</item>
+        <item name="android:colorPrimaryDark">#90CAF9</item>
+        <item name="android:colorAccent">#2196F3</item>
+        <item name="android:statusBarColor">#1976D2</item>
+    </style>
+</resources>
