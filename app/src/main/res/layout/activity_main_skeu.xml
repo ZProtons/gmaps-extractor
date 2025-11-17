@@ -4,14 +4,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Header -->
     <LinearLayout
         android:id="@+id/headerContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp"
-        android:background="@drawable/material_header">
+        android:padding="14dp"
+        android:background="@drawable/skeu_header">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,17 +23,21 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="G2O Maps"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF"
+                android:textColor="#FFF5E6"
+                android:shadowColor="#000000"
+                android:shadowDx="1"
+                android:shadowDy="2"
+                android:shadowRadius="3"
                 android:gravity="center_vertical" />
 
             <ImageButton
                 android:id="@+id/refreshBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/material_refresh_icon"
-                android:contentDescription="Refresh coordinates"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/skeu_refresh_icon"
+                android:contentDescription="Refresh"
                 android:scaleType="fitCenter" />
         </LinearLayout>
 
@@ -43,12 +46,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="📍 Waiting for coordinates..."
-            android:textSize="13sp"
-            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textColor="#FFF5E6"
             android:gravity="center"
-            android:padding="6dp"
-            android:layout_marginTop="8dp"
-            android:background="?android:colorPrimaryDark"
+            android:padding="10dp"
+            android:layout_marginTop="10dp"
+            android:background="#8B5A3C"
+            android:shadowColor="#000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="2"
             android:visibility="visible" />
 
         <TextView
@@ -56,51 +63,51 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Method: Waiting..."
-            android:textSize="10sp"
-            android:textColor="#CCFFFFFF"
+            android:textSize="12sp"
+            android:textColor="#D4C5B9"
             android:gravity="center"
-            android:paddingTop="2dp"
+            android:paddingTop="4dp"
             android:visibility="visible" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="12dp">
 
             <ImageButton
                 android:id="@+id/copyBtn"
                 android:layout_width="0dp"
-                android:layout_height="38dp"
+                android:layout_height="46dp"
                 android:layout_weight="1"
-                android:background="@drawable/material_button_copy"
+                android:background="@drawable/skeu_button_copy"
                 android:contentDescription="Copy"
-                android:layout_marginEnd="3dp" />
+                android:layout_marginEnd="5dp" />
 
             <ImageButton
                 android:id="@+id/openOsmandBtn"
                 android:layout_width="0dp"
-                android:layout_height="38dp"
+                android:layout_height="46dp"
                 android:layout_weight="1"
-                android:background="@drawable/material_button_osmand"
+                android:background="@drawable/skeu_button_osmand"
                 android:contentDescription="OsmAnd"
-                android:layout_marginEnd="3dp" />
+                android:layout_marginEnd="5dp" />
 
             <ImageButton
                 android:id="@+id/openOrganicBtn"
                 android:layout_width="0dp"
-                android:layout_height="38dp"
+                android:layout_height="46dp"
                 android:layout_weight="1"
-                android:background="@drawable/material_button_organic"
+                android:background="@drawable/skeu_button_organic"
                 android:contentDescription="Organic"
-                android:layout_marginEnd="3dp" />
+                android:layout_marginEnd="5dp" />
 
             <ImageButton
                 android:id="@+id/openMagicBtn"
                 android:layout_width="0dp"
-                android:layout_height="38dp"
+                android:layout_height="46dp"
                 android:layout_weight="1"
-                android:background="@drawable/material_button_magic"
+                android:background="@drawable/skeu_button_magic"
                 android:contentDescription="Magic" />
         </LinearLayout>
     </LinearLayout>

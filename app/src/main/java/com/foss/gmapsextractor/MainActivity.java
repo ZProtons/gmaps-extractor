@@ -11,20 +11,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +25,7 @@ public class MainActivity extends Activity {
     
     private WebView webView;
     private TextView coordsDisplay, methodDisplay;
-    private Button openOsmandBtn, openOrganicBtn, openMagicBtn, copyBtn;
+    private ImageButton openOsmandBtn, openOrganicBtn, openMagicBtn, copyBtn, refreshBtn;
     private String coordinates = "";
     private String lastMethod = "Waiting...";
     private SharedPreferences prefs;
@@ -41,7 +34,6 @@ public class MainActivity extends Activity {
     private int method2Success = 0;
     private int method3Success = 0;
     private int method4Success = 0;
-    private int method5Success = 0;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +41,19 @@ public class MainActivity extends Activity {
         applyTheme();
         
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        
+        // Set layout based on theme
+        String theme = prefs.getString("theme", "material");
+        switch(theme) {
+            case "aero":
+                setContentView(R.layout.activity_main_aero);
+                break;
+            case "skeumorphic":
+                setContentView(R.layout.activity_main_skeu);
+                break;
+            default:
+                setContentView(R.layout.activity_main);
+        }
         
         webView = findViewById(R.id.webView);
         coordsDisplay = findViewById(R.id.coordsDisplay);
@@ -58,6 +62,7 @@ public class MainActivity extends Activity {
         openOrganicBtn = findViewById(R.id.openOrganicBtn);
         openMagicBtn = findViewById(R.id.openMagicBtn);
         copyBtn = findViewById(R.id.copyBtn);
+        refreshBtn = findViewById(R.id.refreshBtn);
         
         setupWebView();
         
@@ -65,6 +70,7 @@ public class MainActivity extends Activity {
         openOsmandBtn.setOnClickListener(v -> openInMap("net.osmand.plus", "OsmAnd"));
         openOrganicBtn.setOnClickListener(v -> openInMap("app.organicmaps", "Organic Maps"));
         openMagicBtn.setOnClickListener(v -> openInMap("com.generalmagic.magicearth", "Magic Earth"));
+        refreshBtn.setOnClickListener(v -> refreshCoordinates());
     }
     
     private void applyTheme() {
@@ -84,11 +90,24 @@ public class MainActivity extends Activity {
         }
     }
     
+    private void refreshCoordinates() {
+        coordinates = "";
+        lastMethod = "Refreshing...";
+        coordsDisplay.setText("🔄 Refreshing...");
+        methodDisplay.setText("Method: Refreshing...");
+        
+        // Force re-extraction
+        if (webView.getUrl() != null) {
+            extractCoordinates(webView.getUrl());
+        }
+        
+        Toast.makeText(this, "Refreshing coordinates...", Toast.LENGTH_SHORT).show();
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, 1, 0, "🎨 Theme");
-        menu.add(0, 2, 0, "🔑 API Key");
-        menu.add(0, 3, 0, "📊 Stats");
+        menu.add(0, 2, 0, "📊 Stats");
         return true;
     }
     
@@ -99,9 +118,6 @@ public class MainActivity extends Activity {
                 showThemeDialog();
                 return true;
             case 2:
-                showApiKeyDialog();
-                return true;
-            case 3:
                 showStatsDialog();
                 return true;
         }
@@ -109,7 +125,7 @@ public class MainActivity extends Activity {
     }
     
     private void showThemeDialog() {
-        String[] themes = {"Material Light", "Material Dark", "Aero (Glossy)", "Skeumorphic (Classic)"};
+        String[] themes = {"Material Light", "Material Dark", "Aero (Windows 7)", "Skeumorphic (iOS 6)"};
         String[] themeKeys = {"material", "material_dark", "aero", "skeumorphic"};
         
         new AlertDialog.Builder(this)
@@ -121,39 +137,19 @@ public class MainActivity extends Activity {
             .show();
     }
     
-    private void showApiKeyDialog() {
-        EditText input = new EditText(this);
-        input.setHint("Enter Google Maps API Key");
-        input.setText(prefs.getString("api_key", ""));
-        input.setPadding(50, 30, 50, 30);
-        
-        new AlertDialog.Builder(this)
-            .setTitle("Google Maps API Key")
-            .setMessage("Optional: For Places API fallback\nGet key from: console.cloud.google.com")
-            .setView(input)
-            .setPositiveButton("Save", (dialog, which) -> {
-                String key = input.getText().toString().trim();
-                prefs.edit().putString("api_key", key).apply();
-                Toast.makeText(this, "API Key saved", Toast.LENGTH_SHORT).show();
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
-    }
-    
     private void showStatsDialog() {
         String stats = "Extraction Method Success:\n\n" +
                        "Method 1 (URL @): " + method1Success + "\n" +
                        "Method 2 (Place): " + method2Success + "\n" +
                        "Method 3 (Query): " + method3Success + "\n" +
-                       "Method 4 (DOM): " + method4Success + "\n" +
-                       "Method 5 (API): " + method5Success;
+                       "Method 4 (DOM): " + method4Success;
         
         new AlertDialog.Builder(this)
             .setTitle("Extraction Statistics")
             .setMessage(stats)
             .setPositiveButton("OK", null)
             .setNeutralButton("Reset", (d, w) -> {
-                method1Success = method2Success = method3Success = method4Success = method5Success = 0;
+                method1Success = method2Success = method3Success = method4Success = 0;
                 Toast.makeText(this, "Stats reset", Toast.LENGTH_SHORT).show();
             })
             .show();
@@ -162,7 +158,7 @@ public class MainActivity extends Activity {
     private void setupWebView() {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36");
+        webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36");
         
         webView.addJavascriptInterface(new WebAppInterface(), "Android");
         
@@ -171,13 +167,11 @@ public class MainActivity extends Activity {
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 String url = request.getUrl().toString();
                 
-                // Block intent:// redirects to Google Maps app
                 if (url.startsWith("intent://")) {
                     Toast.makeText(MainActivity.this, "Blocked app redirect", Toast.LENGTH_SHORT).show();
-                    return true; // Block it
+                    return true;
                 }
                 
-                // Allow normal navigation
                 return false;
             }
             
@@ -227,14 +221,6 @@ public class MainActivity extends Activity {
     private void method4_DomParsing() {
         String js = "javascript:(function() {" +
             "  try {" +
-            "    var metas = document.getElementsByTagName('meta');" +
-            "    for(var i=0; i<metas.length; i++) {" +
-            "      if(metas[i].getAttribute('property') === 'og:latitude') {" +
-            "        var lat = metas[i].getAttribute('content');" +
-            "        var lng = document.querySelector('meta[property=\"og:longitude\"]').getAttribute('content');" +
-            "        if(lat && lng) { Android.setCoordinatesMethod4(lat + ',' + lng); return; }" +
-            "      }" +
-            "    }" +
             "    var scripts = document.getElementsByTagName('script');" +
             "    for(var i=0; i<scripts.length; i++) {" +
             "      var text = scripts[i].textContent;" +
@@ -255,7 +241,7 @@ public class MainActivity extends Activity {
         method4_DomParsing();
         
         webView.postDelayed(() -> {
-            if (webView.getUrl() != null) {
+            if (webView.getUrl() != null && coordinates.isEmpty()) {
                 extractCoordinates(webView.getUrl());
             }
         }, 2000);
@@ -266,8 +252,6 @@ public class MainActivity extends Activity {
         lastMethod = method;
         coordsDisplay.setText("📍 " + coordinates);
         methodDisplay.setText("Via: " + method);
-        coordsDisplay.setVisibility(View.VISIBLE);
-        methodDisplay.setVisibility(View.VISIBLE);
     }
     
     public class WebAppInterface {
