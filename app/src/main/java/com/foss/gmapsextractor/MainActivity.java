@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -36,7 +37,6 @@ public class MainActivity extends Activity {
     private String lastMethod = "Waiting...";
     private SharedPreferences prefs;
     
-    // Extraction methods counter
     private int method1Success = 0;
     private int method2Success = 0;
     private int method3Success = 0;
@@ -86,9 +86,9 @@ public class MainActivity extends Activity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 1, 0, "Theme");
-        menu.add(0, 2, 0, "API Key");
-        menu.add(0, 3, 0, "Stats");
+        menu.add(0, 1, 0, "🎨 Theme");
+        menu.add(0, 2, 0, "🔑 API Key");
+        menu.add(0, 3, 0, "📊 Stats");
         return true;
     }
     
@@ -109,14 +109,14 @@ public class MainActivity extends Activity {
     }
     
     private void showThemeDialog() {
-        String[] themes = {"Material", "Material Dark", "Aero (Glossy)", "Skeumorphic"};
+        String[] themes = {"Material Light", "Material Dark", "Aero (Glossy)", "Skeumorphic (Classic)"};
         String[] themeKeys = {"material", "material_dark", "aero", "skeumorphic"};
         
         new AlertDialog.Builder(this)
             .setTitle("Choose Theme")
             .setItems(themes, (dialog, which) -> {
                 prefs.edit().putString("theme", themeKeys[which]).apply();
-                recreate(); // Restart activity to apply theme
+                recreate();
             })
             .show();
     }
@@ -125,6 +125,7 @@ public class MainActivity extends Activity {
         EditText input = new EditText(this);
         input.setHint("Enter Google Maps API Key");
         input.setText(prefs.getString("api_key", ""));
+        input.setPadding(50, 30, 50, 30);
         
         new AlertDialog.Builder(this)
             .setTitle("Google Maps API Key")
@@ -140,28 +141,46 @@ public class MainActivity extends Activity {
     }
     
     private void showStatsDialog() {
-        String stats = "Extraction Method Success Rates:\n\n" +
-                       "Method 1 (URL @coords): " + method1Success + "\n" +
-                       "Method 2 (URL place): " + method2Success + "\n" +
-                       "Method 3 (URL query): " + method3Success + "\n" +
-                       "Method 4 (DOM parsing): " + method4Success + "\n" +
-                       "Method 5 (API fallback): " + method5Success;
+        String stats = "Extraction Method Success:\n\n" +
+                       "Method 1 (URL @): " + method1Success + "\n" +
+                       "Method 2 (Place): " + method2Success + "\n" +
+                       "Method 3 (Query): " + method3Success + "\n" +
+                       "Method 4 (DOM): " + method4Success + "\n" +
+                       "Method 5 (API): " + method5Success;
         
         new AlertDialog.Builder(this)
-            .setTitle("Extraction Stats")
+            .setTitle("Extraction Statistics")
             .setMessage(stats)
             .setPositiveButton("OK", null)
+            .setNeutralButton("Reset", (d, w) -> {
+                method1Success = method2Success = method3Success = method4Success = method5Success = 0;
+                Toast.makeText(this, "Stats reset", Toast.LENGTH_SHORT).show();
+            })
             .show();
     }
     
     private void setupWebView() {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36");
+        webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36");
         
         webView.addJavascriptInterface(new WebAppInterface(), "Android");
         
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                
+                // Block intent:// redirects to Google Maps app
+                if (url.startsWith("intent://")) {
+                    Toast.makeText(MainActivity.this, "Blocked app redirect", Toast.LENGTH_SHORT).show();
+                    return true; // Block it
+                }
+                
+                // Allow normal navigation
+                return false;
+            }
+            
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
@@ -172,43 +191,39 @@ public class MainActivity extends Activity {
         webView.loadUrl("https://www.google.com/maps");
     }
     
-    // METHOD 1: URL pattern @lat,lng
     private boolean method1_UrlPattern(String url) {
         Pattern p = Pattern.compile("@(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)");
         Matcher m = p.matcher(url);
         if (m.find()) {
-            setCoords(m.group(1) + "," + m.group(2), "URL Pattern @");
+            setCoords(m.group(1) + "," + m.group(2), "URL @");
             method1Success++;
             return true;
         }
         return false;
     }
     
-    // METHOD 2: URL place pattern
     private boolean method2_PlacePattern(String url) {
         Pattern p = Pattern.compile("place/[^/]+/@(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)");
         Matcher m = p.matcher(url);
         if (m.find()) {
-            setCoords(m.group(1) + "," + m.group(2), "Place Pattern");
+            setCoords(m.group(1) + "," + m.group(2), "Place");
             method2Success++;
             return true;
         }
         return false;
     }
     
-    // METHOD 3: Query parameter
     private boolean method3_QueryParam(String url) {
         Pattern p = Pattern.compile("[?&]q=(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)");
         Matcher m = p.matcher(url);
         if (m.find()) {
-            setCoords(m.group(1) + "," + m.group(2), "Query Param");
+            setCoords(m.group(1) + "," + m.group(2), "Query");
             method3Success++;
             return true;
         }
         return false;
     }
     
-    // METHOD 4: JavaScript DOM parsing
     private void method4_DomParsing() {
         String js = "javascript:(function() {" +
             "  try {" +
@@ -232,68 +247,25 @@ public class MainActivity extends Activity {
         webView.evaluateJavascript(js, null);
     }
     
-    // METHOD 5: Google Places API fallback
-    private void method5_ApiCall(String placeId) {
-        String apiKey = prefs.getString("api_key", "");
-        if (apiKey.isEmpty()) return;
-        
-        new Thread(() -> {
-            try {
-                String urlStr = "https://maps.googleapis.com/maps/api/place/details/json?place_id=" 
-                              + placeId + "&key=" + apiKey;
-                URL url = new URL(urlStr);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
-                
-                JSONObject json = new JSONObject(response.toString());
-                JSONObject location = json.getJSONObject("result")
-                                          .getJSONObject("geometry")
-                                          .getJSONObject("location");
-                String lat = location.getString("lat");
-                String lng = location.getString("lng");
-                
-                runOnUiThread(() -> {
-                    setCoords(lat + "," + lng, "API Fallback");
-                    method5Success++;
-                });
-                
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-    
     private void extractCoordinates(String url) {
-        // Try all methods in order
         if (method1_UrlPattern(url)) return;
         if (method2_PlacePattern(url)) return;
         if (method3_QueryParam(url)) return;
         
-        // Method 4: DOM parsing (async)
         method4_DomParsing();
         
-        // Method 5: Extract place_id and try API
-        Pattern placeIdPattern = Pattern.compile("place_id:([^,&]+)");
-        Matcher m = placeIdPattern.matcher(url);
-        if (m.find()) {
-            method5_ApiCall(m.group(1));
-        }
-        
-        // Re-check every 2 seconds
-        webView.postDelayed(() -> extractCoordinates(webView.getUrl()), 2000);
+        webView.postDelayed(() -> {
+            if (webView.getUrl() != null) {
+                extractCoordinates(webView.getUrl());
+            }
+        }, 2000);
     }
     
     private void setCoords(String coords, String method) {
         coordinates = coords;
         lastMethod = method;
         coordsDisplay.setText("📍 " + coordinates);
-        methodDisplay.setText("Method: " + method);
+        methodDisplay.setText("Via: " + method);
         coordsDisplay.setVisibility(View.VISIBLE);
         methodDisplay.setVisibility(View.VISIBLE);
     }
@@ -303,7 +275,7 @@ public class MainActivity extends Activity {
         public void setCoordinatesMethod4(String coords) {
             runOnUiThread(() -> {
                 if (coordinates.isEmpty() || !coordinates.equals(coords)) {
-                    setCoords(coords, "DOM Parsing");
+                    setCoords(coords, "DOM");
                     method4Success++;
                 }
             });
@@ -315,7 +287,7 @@ public class MainActivity extends Activity {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("coordinates", coordinates);
             clipboard.setPrimaryClip(clip);
-            Toast.makeText(this, "Copied: " + coordinates, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "📋 Copied: " + coordinates, Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "No coordinates yet", Toast.LENGTH_SHORT).show();
         }
@@ -333,13 +305,7 @@ public class MainActivity extends Activity {
             intent.setPackage(packageName);
             startActivity(intent);
         } catch (Exception e) {
-            try {
-                Intent geoIntent = new Intent(Intent.ACTION_VIEW,
-                        Uri.parse("geo:" + coordinates + "?z=17"));
-                startActivity(geoIntent);
-            } catch (Exception e2) {
-                Toast.makeText(this, appName + " not installed", Toast.LENGTH_SHORT).show();
-            }
+            Toast.makeText(this, appName + " not installed", Toast.LENGTH_LONG).show();
         }
     }
     
